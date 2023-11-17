@@ -82,7 +82,7 @@ current_ip = get_ip()
 wait_time = 60 * 30  # 30 minutes
 while True:
     new_ip = get_ip()
-    print = "No IP Changes"
+    print("No IP Changes")
     if new_ip != current_ip:
         print(f"IP has changed from {current_ip} to {new_ip}. Updating...")
         main(domain, name, record_type, ip_url, email, token, zone_id, record_id)
