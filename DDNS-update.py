@@ -78,7 +78,8 @@ def main(domain, name, record_type, ip_url, email, token, zone_id, record_id):
 
 
 # Verify authentication on boot
-verify_auth(email, token)
+if verify_auth(email, token) == True:
+    print("Awaiting IP check...")
 
 # IP update schedule
 current_ip = get_ip()
