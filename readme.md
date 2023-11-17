@@ -40,11 +40,3 @@ docker run --env-file .env bronese/ddns-updater:lastest
 ```
 
 The script will run indefinitely, checking your IP every 30 minutes and updating the DNS record if a change is detected.
-
-## License
-
-The script is open-sourced software licensed under the MIT License.
-
-## Support
-
-If you encounter any problems or have any suggestions, please open an issue on the (GitHub repository)[https://github.com/bronese/ddns-updater].
