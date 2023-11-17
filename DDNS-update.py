@@ -77,6 +77,9 @@ def main(domain, name, record_type, ip_url, email, token, zone_id, record_id):
     print(response.json())
 
 
+# Verify authentication on boot
+verify_auth(email, token)
+
 # IP update schedule
 current_ip = get_ip()
 wait_time = 60 * 30  # 30 minutes
