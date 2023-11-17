@@ -2,6 +2,17 @@ import time
 import os
 import requests
 
+
+# Environmental Variables
+domain = os.getenv("DOMAIN")
+name = os.getenv("NAME")
+record_type = os.getenv("RECORDTYPE")
+ip_url = os.getenv("IPURL")
+email = os.getenv("EMAIL")
+token = os.getenv("TOKEN")
+zone_id = os.getenv("TOKENID")
+record_id = os.getenv("RECORDID")
+
 current_time = time.ctime()
 
 
@@ -66,14 +77,18 @@ def main(domain, name, record_type, ip_url, email, token, zone_id, record_id):
     print(response.json())
 
 
-domain = os.getenv("DOMAIN")
-name = os.getenv("NAME")
-record_type = os.getenv("RECORDTYPE")
-ip_url = os.getenv("IPURL")
-email = os.getenv("EMAIL")
-token = os.getenv("TOKEN")
-zone_id = os.getenv("TOKENID")
-record_id = os.getenv("RECORDID")
+# IP update schedule
+current_ip = get_ip()
+wait_time = 60 * 30  # 30 minutes
+while True:
+    new_ip = get_ip()
+    print = "No IP Changes"
+    if new_ip != current_ip:
+        print(f"IP has changed from {current_ip} to {new_ip}. Updating...")
+        main(domain, name, record_type, ip_url, email, token, zone_id, record_id)
+        current_ip = new_ip
+    time.sleep(wait_time)
+
 
 # if __name__ == "__main__":
 #     config = configparser.ConfigParser()
