@@ -23,7 +23,7 @@ You must set the following environment variables when you create your Docker con
 - `RECORDID`: Record ID of your A or AAAA record on Cloudflare.
 - `IPURL` (optional): A third-party service URL that returns your IP address in plain text. If left empty or not provided, it will default to "http://ifconfig.me".
 
-An example .env file is also [included]{https://github.com/bronese/CloudflareDDNS/blob/main/example.env}
+An example .env file is also [included](https://github.com/bronese/CloudflareDDNS/blob/main/example.env).
 
 ## Usage
 
