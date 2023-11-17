@@ -10,10 +10,17 @@ record_type = os.getenv("RECORDTYPE")
 ip_url = os.getenv("IPURL")
 email = os.getenv("EMAIL")
 token = os.getenv("TOKEN")
-zone_id = os.getenv("TOKENID")
+zone_id = os.getenv("ZONEID")
 record_id = os.getenv("RECORDID")
 
 current_time = time.ctime()
+
+
+# Var checker
+def check_env(env_name):
+    value = os.getenv(env_name)
+    if not value:
+        print(f"{env_name} is empty.")
 
 
 # Cloudflare auth
@@ -27,11 +34,6 @@ def verify_auth(email, token):
         print(f"Authentication successful for user {email}.")
     else:
         print(f"Failed to authenticate user {email}. Response: {response.json()}")
-
-
-def main(domain, name, record_type, ip_url, email, token, zone_id, record_id):
-    # Verify authentication
-    verify_auth(email, token)
 
 
 # Get IP
@@ -76,6 +78,15 @@ def main(domain, name, record_type, ip_url, email, token, zone_id, record_id):
     # Print the response
     print(response.json())
 
+
+# Environment Variables check
+check_env("DOMAIN")
+check_env("NAME")
+check_env("RECORDTYPE")
+check_env("EMAIL")
+check_env("TOKEN")
+check_env("ZONEID")
+check_env("RECORDID")
 
 # Verify authentication on boot
 if verify_auth(email, token) == True:
