@@ -2,27 +2,25 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
-
-  build:
-
+  build_and_publish:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Login to Docker Hub
-      uses: docker/login-action@v1
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Build and Push Docker image
-      run: |
-        TIMESTAMP=$(date +%s)
-        docker build . --file Dockerfile --tag bronese/ddns-updater:$TIMESTAMP
-        docker push bronese/ddns-updater:$TIMESTAMP
+      - name: Build and Push Docker image
+        run: |
+          TIMESTAMP=$(date +%s)
+          docker build . --file Dockerfile --tag bronese/ddns-updater:$TIMESTAMP
+          docker push bronese/ddns-updater:$TIMESTAMP
