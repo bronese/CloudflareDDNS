@@ -1,4 +1,4 @@
-# Bronese Ddns-Updater
+# Cloudflare DDNS
 
 This script is used to automatically update your dns record on Cloudflare when your ip changes. It uses the Cloudflare API to update your dns record.
 
