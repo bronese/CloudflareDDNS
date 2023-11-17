@@ -23,5 +23,6 @@ jobs:
 
     - name: Build and Push Docker image
       run: |
-        docker build . --file Dockerfile --tag bronese/ddns-updater:$(date +%s)
-        docker push bronese/ddns-updater
+        TIMESTAMP=$(date +%s)
+        docker build . --file Dockerfile --tag bronese/ddns-updater:$TIMESTAMP
+        docker push bronese/ddns-updater:$TIMESTAMP
