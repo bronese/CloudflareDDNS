@@ -1,11 +1,29 @@
-import requests
-import configparser
 import time
+import os
 
 current_time = time.ctime()
 
 
-def get_ip(ip_url):
+# Cloudflare auth
+def verify_auth(email, token):
+    headers = get_headers(email, token)
+    response = requests.get(
+        "https://api.cloudflare.com/client/v4/user", headers=headers
+    )
+
+    if response.status_code == 200:
+        print(f"Authentication successful for user {email}.")
+    else:
+        print(f"Failed to authenticate user {email}. Response: {response.json()}")
+
+
+def main(domain, name, record_type, ip_url, email, token, zone_id, record_id):
+    # Verify authentication
+    verify_auth(email, token)
+
+
+# Get IP
+def get_ip(ip_url="http://ifconfig.me"):
     response = requests.get(ip_url)
     return response.text.rstrip()
 
@@ -47,16 +65,25 @@ def main(domain, name, record_type, ip_url, email, token, zone_id, record_id):
     print(response.json())
 
 
-if __name__ == "__main__":
-    config = configparser.ConfigParser()
-    config.read("ddns.ini")
+domain = os.getenv("Domain")
+name = os.getenv("NAME")
+record_type = os.getenv("RECORDTYPE")
+ip_url = os.getenv("IPURL")
+email = os.getenv("EMAIL")
+token = os.getenv("TOKEN")
+zone_id = os.getenv("TOKENID")
+record_id = os.getenv("RECORDID")
 
-    section = config["DEFAULT"]
-    domain = section["Domain"]
-    name = section["Name"]
-    record_type = section["RecordType"]
-    ip_url = section["IpUrl"]
-    email = section["Email"]
-    token = section["Token"]
-    zone_id = section["ZoneId"]
-    record_id = section["RecordId"]
+# if __name__ == "__main__":
+#     config = configparser.ConfigParser()
+#     config.read("ddns.ini")
+
+#     section = config["DEFAULT"]
+#     domain = section["Domain"]
+#     name = section["Name"]
+#     record_type = section["RecordType"]
+#     ip_url = section["IpUrl"]
+#     email = section["Email"]
+#     token = section["Token"]
+#     zone_id = section["ZoneId"]
+#     record_id = section["RecordId"]
