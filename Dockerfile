@@ -20,4 +20,4 @@ WORKDIR /app
 COPY . .
 
 # Command to run on container start
-CMD [ "python3.11", "./DDNS-update.py" ]
+CMD [ "python3.11","-u" "./DDNS-update.py" ]
