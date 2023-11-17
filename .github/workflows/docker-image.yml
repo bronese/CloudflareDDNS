@@ -21,6 +21,6 @@ jobs:
 
       - name: Build and Push Docker image
         run: |
-          docker build -t my-image:$(date +%s) -t my-image:latest .
-          docker push my-image:$(date +%s)
-          docker push my-image:latest
+          docker build -t bronese/ddns-updater:$(date +%s) -t bronese/ddns-updater:latest .
+          docker push bronese/ddns-updater:$(date +%s)
+          docker push bronese/ddns-updater:latest

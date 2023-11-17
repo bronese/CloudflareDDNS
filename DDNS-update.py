@@ -66,7 +66,7 @@ def main(domain, name, record_type, ip_url, email, token, zone_id, record_id):
     print(response.json())
 
 
-domain = os.getenv("Domain")
+domain = os.getenv("DOMAIN")
 name = os.getenv("NAME")
 record_type = os.getenv("RECORDTYPE")
 ip_url = os.getenv("IPURL")
