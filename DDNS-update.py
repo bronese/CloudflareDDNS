@@ -1,6 +1,7 @@
 import time
 import os
 import requests
+import sys
 
 # Environmental Variables
 domain = os.getenv("DOMAIN")
@@ -68,20 +69,16 @@ def get_ip(ip_url=None):
 def get_generated_record_id(dns_record, selecteditem):
     filtered_payload = []
     counter = 0
-
-
     while counter < len(dns_record):
-        if dns_record[counter]['type'] == 'A':
-             filtered_payload.append(dns_record[counter])
+        if dns_record[counter]['type'] == record_type:
+            filtered_payload.append(dns_record[counter])
         counter += 1
-    if len(filtered_payload) > 1:
-        dns_record_id = filtered_payload[selecteditem]
-        return dns_record_id['id'], dns_record_id['name']
-    else:
+    if len(filtered_payload) == 1:
         dns_record_id = filtered_payload[0]
         return dns_record_id['id'], dns_record_id['name']
-
-
+    else:
+        dns_record_id = filtered_payload[selecteditem]
+        return dns_record_id['id'], dns_record_id['name']
 # Main function
 def main(domain, final_name, record_type, ip_url, email, token, zone_id, final_record_id):
     # Get IP
@@ -119,6 +116,7 @@ def main(domain, final_name, record_type, ip_url, email, token, zone_id, final_r
         else:
             print(f"{key}: {value}")
 
+start_time = time.time()
 # Environment Variables check
 check_env("DOMAIN")
 check_env("NAME")
@@ -128,6 +126,12 @@ check_env("TOKEN")
 check_env("ZONEID")
 check_env("RECORDID")
 
+
+if not check_env("TOKEN") or not check_env("ZONEID"):
+    print(f"Either Token: [{token}] or Zone ID: [{zone_id}] is empty, or both.")
+    sys.exit()
+
+
 # Verify authentication on boot
 verify_auth(email, token)
 
@@ -136,12 +140,16 @@ current_ip=get_ip()
 
 #DNS record ID checker
 dns_record = get_dns_record(email, token, zone_id)
-if selecteditem==None:
-    final_record_id=record_id
-    final_name=name
-else:
-     final_record_id=get_generated_record_id(dns_record, selecteditem)[0]
-     final_name=get_generated_record_id(dns_record, selecteditem)[1]
+if selecteditem is not None or (record_id is None and name is None):
+    final_record_id, final_name = get_generated_record_id(dns_record, selecteditem==0)
+    print("No RecordID, Record Name, or Item selection provided, using first record found.")
+
+elif selecteditem is not None:
+    final_record_id, final_name = get_generated_record_id(dns_record, selecteditem)
+
+elif selecteditem is None and record_id is not None and name is not None:
+    final_record_id = record_id
+    final_name = name
 
 
 # Main loop
@@ -152,3 +160,7 @@ while current_ip != None:
     current_ip = new_ip
     wait_time = int(update_interval if update_interval is not None else 300)
     time.sleep(wait_time)
+    
+end_time = time.time()
+runtime = end_time - start_time
+print(f"Runtime: {runtime} seconds")
