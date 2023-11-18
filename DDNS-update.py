@@ -79,9 +79,14 @@ def main(domain, name, record_type, ip_url, email, token, zone_id, record_id):
 
     # Print the response
     response_data = response.json()
-    print("Response Data")
+
     for key, value in response_data.items():
-        print(f"{key}: {value}")
+        if isinstance(value, dict):
+            print(f"{key}:")
+            for inner_key, inner_value in value.items():
+                print(f"  {inner_key}: {inner_value}")
+        else:
+            print(f"{key}: {value}")
 
 # Environment Variables check
 check_env("DOMAIN")
