@@ -13,7 +13,7 @@ zone_id = os.getenv("ZONEID")
 record_id = os.getenv("RECORDID")
 update_interval = os.getenv("UPDATEINTERVAL")
 ttl = os.getenv("TTL")
-selecteditem = int(os.getenv("SELECTEDITEM"))
+selecteditem = int(os.getenv("SELECTEDITEM")) if os.getenv("SELECTEDITEM") else None
 
 current_time=(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
 
