@@ -12,6 +12,7 @@ token = os.getenv("TOKEN")
 zone_id = os.getenv("ZONEID")
 record_id = os.getenv("RECORDID")
 update_interval = os.getenv("UPDATEINTERVAL")
+ttl = os.getenv("TTL")
 
 current_time=(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
 
@@ -46,7 +47,7 @@ def verify_auth(email, token):
 # Get IP
 def get_ip(ip_url=None):
     if ip_url is None:
-        ip_url = os.getenv("IP_URL", "http://ifconfig.me")  # Use environment variable or default value
+        ip_url = "http://ifconfig.me"
     response = requests.get(ip_url)
     return response.text.rstrip()
 
@@ -65,8 +66,10 @@ def main(domain, name, record_type, ip_url, email, token, zone_id, record_id):
         "proxied": False,
         "type": record_type,
         "comment": "IP updated at " + current_time,
+        "ttl": ttl
     }
-
+    print(data)
+    
     # Send the PUT request
     response = requests.put(
         f"https://api.cloudflare.com/client/v4/zones/{zone_id}/dns_records/{record_id}",

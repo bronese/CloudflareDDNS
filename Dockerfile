@@ -4,6 +4,9 @@ FROM ubuntu:latest
 # Update Ubuntu Software repository
 RUN apt-get update
 
+# Install tzdata
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata
+
 # Install Python and pip
 RUN apt-get install -y python3.11 python3-pip
 
