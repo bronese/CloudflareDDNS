@@ -39,4 +39,4 @@ You can also use a .env file to configure your environment variables and run the
 docker run --env-file .env bronese/ddns-updater:lastest
 ```
 
-The script will run indefinitely, checking your IP every 30 minutes and updating the DNS record if a change is detected.
+The script will run indefinitely, checking your IP every 30 minutes and updating the DNS record if a change is detected
