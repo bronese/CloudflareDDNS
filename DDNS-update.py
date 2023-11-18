@@ -153,6 +153,7 @@ elif selecteditem is None:
     final_record_id = record_id
     final_name = name
 
+end_time = time.time()
 runtime = end_time - start_time
 print(f"Boot runtime: {runtime} seconds")
 
@@ -163,5 +164,4 @@ while current_ip != None:
     print(f"Updated IP from {current_ip} to {new_ip} at {current_time}.")
     current_ip = new_ip
     wait_time = int(update_interval)    
-    end_time = time.time()
     time.sleep(wait_time)
