@@ -138,7 +138,7 @@ if not check_env("TOKEN") or not check_env("ZONEID"):
 verify_auth(email, token)
 
 # Set current IP
-current_ip=get_ip()
+current_ip=get_ip(ip_url)
 
 #DNS record ID checker
 dns_record = get_dns_record(email, token, zone_id)
