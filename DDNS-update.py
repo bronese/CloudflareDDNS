@@ -13,6 +13,7 @@ zone_id = os.getenv("ZONEID")
 record_id = os.getenv("RECORDID")
 update_interval = os.getenv("UPDATEINTERVAL")
 
+current_time=time.localtime()
 
 # Var checker
 def check_env(env_name):
@@ -37,7 +38,7 @@ def verify_auth(email, token):
 # Get IP
 def get_ip(ip_url=None):
     if ip_url is None:
-        ip_url = "http://ifconfig.me"  # Use default placeholder URL
+        ip_url = os.getenv("IP_URL", "http://ifconfig.me")  # Use environment variable or default value
     response = requests.get(ip_url)
     return response.text.rstrip()
 
@@ -98,6 +99,6 @@ wait_time = update_interval if update_interval is not None else 300
 while True:
     new_ip = get_ip(ip_url)
     main(domain, name, record_type, ip_url, email, token, zone_id, record_id)
-    print(f"Updated IP from {current_ip} to {new_ip}")
+    print(f"Updated IP from {current_ip} to {new_ip} at {current_time}.")
     current_ip=new_ip
     time.sleep(wait_time)
