@@ -94,11 +94,11 @@ verify_auth(email, token)
 current_ip=get_ip()
 
 update_interval = None
-wait_time = update_interval if update_interval is not None else 300
 
 while True:
     new_ip = get_ip(ip_url)
     main(domain, name, record_type, ip_url, email, token, zone_id, record_id)
     print(f"Updated IP from {current_ip} to {new_ip} at {current_time}.")
-    current_ip=new_ip
+    current_ip = new_ip
+    wait_time = update_interval if update_interval is not None else 300
     time.sleep(wait_time)
