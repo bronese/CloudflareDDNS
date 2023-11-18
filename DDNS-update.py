@@ -153,6 +153,8 @@ elif selecteditem is None:
     final_record_id = record_id
     final_name = name
 
+runtime = end_time - start_time
+print(f"Boot runtime: {runtime} seconds")
 
 # Main loop
 while current_ip != None:
@@ -162,6 +164,4 @@ while current_ip != None:
     current_ip = new_ip
     wait_time = int(update_interval)    
     end_time = time.time()
-    runtime = end_time - start_time
-    print(f"Runtime: {runtime} seconds")
     time.sleep(wait_time)
