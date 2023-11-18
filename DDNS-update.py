@@ -20,9 +20,11 @@ current_time=(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
 
 # Var checker
 def check_env(env_name):
-    value = os.getenv(env_name)
+    value = (env_name)
     if not value:
         print(f"{env_name} is empty.")
+        return False
+    return True
 
 # Get DNS records
 def get_dns_record(email, token, zone_id):
