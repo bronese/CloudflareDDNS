@@ -93,15 +93,29 @@ if verify_auth(email, token) == True:
     print("Awaiting IP check...")
 
 # IP update schedule
-current_ip = get_ip()
 wait_time = 60 * 30  # 30 minutes
+file_path = "/home/current_ip.txt"
 while True:
     new_ip = get_ip()
-    print("No IP Changes")
-    if new_ip != current_ip:
+
+    if not os.path.exists(file_path):
+        with open(file_path, 'w') as f:
+            f.write(new_ip)
+            print(f"Saved IP: {new_ip} to {file_path}")
+        continue
+
+    with open(file_path, 'r') as f:
+        current_ip = f.read().strip()
+
+    if new_ip == current_ip:
+        print("No IP Changes")
+    else:
         print(f"IP has changed from {current_ip} to {new_ip}. Updating...")
         main(domain, name, record_type, ip_url, email, token, zone_id, record_id)
-        current_ip = new_ip
+        with open(file_path, 'w') as f:
+            f.write(new_ip)
+            print(f"Updated IP: {new_ip} in {file_path}")
+
     time.sleep(wait_time)
 
 
