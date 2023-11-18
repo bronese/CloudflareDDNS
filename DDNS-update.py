@@ -22,6 +22,15 @@ def check_env(env_name):
         print(f"{env_name} is empty.")
 
 
+# Build headers
+def get_headers(email, token):
+    return {
+        "X-Auth-Email": email,
+        "Authorization": "Bearer " + token,
+        "Content-Type": "application/json",
+    }
+
+
 # Cloudflare auth
 def verify_auth(email, token):
     headers = get_headers(email, token)
@@ -34,7 +43,6 @@ def verify_auth(email, token):
     else:
         print(f"Failed to authenticate user {email}. Response: {response.json()}")
 
-
 # Get IP
 def get_ip(ip_url=None):
     if ip_url is None:
@@ -42,15 +50,7 @@ def get_ip(ip_url=None):
     response = requests.get(ip_url)
     return response.text.rstrip()
 
-
-def get_headers(email, token):
-    return {
-        "X-Auth-Email": email,
-        "Authorization": "Bearer " + token,
-        "Content-Type": "application/json",
-    }
-
-
+# Main function
 def main(domain, name, record_type, ip_url, email, token, zone_id, record_id):
     # Get IP
     new_ip = get_ip(ip_url)
@@ -92,8 +92,6 @@ verify_auth(email, token)
 
 # IP update schedule
 current_ip=get_ip()
-
-update_interval = None
 
 while True:
     new_ip = get_ip(ip_url)
