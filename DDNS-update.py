@@ -13,7 +13,7 @@ zone_id = os.getenv("ZONEID")
 record_id = os.getenv("RECORDID")
 update_interval = os.getenv("UPDATEINTERVAL")
 ttl = os.getenv("TTL")
-selecteditem = os.getenv("SELECTEDITEM")
+selecteditem = int(os.getenv("SELECTEDITEM"))
 
 current_time=(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
 
@@ -136,8 +136,8 @@ current_ip=get_ip()
 #DNS record ID checker
 dns_record = get_dns_record(email, token, zone_id)
 if selecteditem!=None:
-     final_record_id=get_generated_record_id(dns_record, selecteditem)[1]
-     final_name=get_generated_record_id(dns_record, selecteditem)[0]
+     final_record_id=get_generated_record_id(dns_record, selecteditem)[0]
+     final_name=get_generated_record_id(dns_record, selecteditem)[1]
 else:
      final_record_id=record_id
      final_name=name
