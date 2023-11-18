@@ -56,9 +56,9 @@ def verify_auth(email, token):
     )
 
     if response.status_code == 200:
-        print(f"Authentication successful for user {email}.")
+        print(f"Authentication successful")
     else:
-        print(f"Failed to authenticate user {email}. Response: {response.json()}")
+        print(f"Failed to authenticate user. Response: {response.json()}")
 
 # Get IP
 def get_ip(ip_url=None):
@@ -72,7 +72,7 @@ def get_generated_record_id(dns_record, selecteditem):
     filtered_payload = []
     counter = 0
     while counter < len(dns_record):
-        if dns_record[counter]['type'] == record_type:
+        if record_type is None or dns_record[counter]['type'] == record_type:
             filtered_payload.append(dns_record[counter])
         counter += 1
     if len(filtered_payload) == 1:
@@ -128,6 +128,8 @@ check_env("TOKEN")
 check_env("ZONEID")
 check_env("RECORDID")
 
+if not check_env(record_type):
+    print(f"Record Type is empty, 'A' record will be used by default.")
 
 if not check_env("TOKEN") or not check_env("ZONEID"):
     print(f"Either Token: [{token}] or Zone ID: [{zone_id}] is empty, or both.")
@@ -160,9 +162,8 @@ while current_ip != None:
     main(domain, final_name, record_type, ip_url, email, token, zone_id, final_record_id)
     print(f"Updated IP from {current_ip} to {new_ip} at {current_time}.")
     current_ip = new_ip
-    wait_time = int(update_interval if update_interval is not None else 300)
+    wait_time = int(update_interval if update_interval is not None else 300)    
+    end_time = time.time()
+    runtime = end_time - start_time
+    print(f"Runtime: {runtime} seconds")
     time.sleep(wait_time)
-    
-end_time = time.time()
-runtime = end_time - start_time
-print(f"Runtime: {runtime} seconds")
