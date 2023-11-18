@@ -13,7 +13,7 @@ zone_id = os.getenv("ZONEID")
 record_id = os.getenv("RECORDID")
 update_interval = os.getenv("UPDATEINTERVAL")
 
-current_time=time.localtime()
+current_time=(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
 
 # Var checker
 def check_env(env_name):
