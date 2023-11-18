@@ -6,14 +6,14 @@ import sys
 # Environmental Variables
 domain = os.getenv("DOMAIN")
 name = os.getenv("NAME")
-record_type = os.getenv("RECORDTYPE")
-ip_url = os.getenv("IPURL")
+record_type = os.getenv("RECORDTYPE") or "A"
+ip_url = os.getenv("IPURL") or "http://ifconfig.me"
 email = os.getenv("EMAIL")
 token = os.getenv("TOKEN")
 zone_id = os.getenv("ZONEID")
 record_id = os.getenv("RECORDID")
-update_interval = os.getenv("UPDATEINTERVAL")
-ttl = os.getenv("TTL")
+update_interval = os.getenv("UPDATEINTERVAL") or 300 # 5 minutes
+ttl = os.getenv("TTL") or 1 # 1 second
 selecteditem = int(os.getenv("SELECTEDITEM")) if os.getenv("SELECTEDITEM") else None
 
 current_time=(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
@@ -61,9 +61,7 @@ def verify_auth(email, token):
         print(f"Failed to authenticate user. Response: {response.json()}")
 
 # Get IP
-def get_ip(ip_url=None):
-    if ip_url is None:
-        ip_url = "http://ifconfig.me"
+def get_ip(ip_url):
     response = requests.get(ip_url)
     return response.text.rstrip()
 
@@ -148,10 +146,10 @@ if selecteditem is not None or (record_id is None and name is None):
     final_record_id, final_name = get_generated_record_id(dns_record, selecteditem==0)
     print("No RecordID, Record Name, or Item selection provided, using first record found.")
 
-elif selecteditem is not None:
+elif selecteditem is not None and record_id is None and name is None:
     final_record_id, final_name = get_generated_record_id(dns_record, selecteditem)
 
-elif selecteditem is None and record_id is not None and name is not None:
+elif selecteditem is None:
     final_record_id = record_id
     final_name = name
 
@@ -162,7 +160,7 @@ while current_ip != None:
     main(domain, final_name, record_type, ip_url, email, token, zone_id, final_record_id)
     print(f"Updated IP from {current_ip} to {new_ip} at {current_time}.")
     current_ip = new_ip
-    wait_time = int(update_interval if update_interval is not None else 300)    
+    wait_time = int(update_interval)    
     end_time = time.time()
     runtime = end_time - start_time
     print(f"Runtime: {runtime} seconds")
