@@ -35,9 +35,10 @@ def get_dns_record(email, token, zone_id):
     )
     dns_records = response.json()["result"]
     if not dns_records:
-        print("No DNS records found.")
+        print(f"No DNS records found. Response: {response.json()}")
     else:
         return dns_records
+    print("DNS Records requested")
 
 # Build headers
 def get_headers(email, token):
