@@ -69,9 +69,10 @@ def get_generated_record_id(dns_record, selecteditem):
     filtered_payload = []
     counter = 0
 
+
     while counter < len(dns_record):
         if dns_record[counter]['type'] == 'A':
-            filtered_payload.append(dns_record[counter])
+             filtered_payload.append(dns_record[counter])
         counter += 1
     if len(filtered_payload) > 1:
         dns_record_id = filtered_payload[selecteditem]
@@ -135,12 +136,13 @@ current_ip=get_ip()
 
 #DNS record ID checker
 dns_record = get_dns_record(email, token, zone_id)
-if selecteditem!=None:
+if selecteditem==None:
+    final_record_id=record_id
+    final_name=name
+else:
      final_record_id=get_generated_record_id(dns_record, selecteditem)[0]
      final_name=get_generated_record_id(dns_record, selecteditem)[1]
-else:
-     final_record_id=record_id
-     final_name=name
+
 
 # Main loop
 while current_ip != None:
