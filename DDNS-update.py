@@ -35,7 +35,9 @@ def verify_auth(email, token):
 
 
 # Get IP
-def get_ip(ip_url="http://ifconfig.me"):
+def get_ip(ip_url=None):
+    if ip_url is None:
+        ip_url = "http://ifconfig.me"  # Use default placeholder URL
     response = requests.get(ip_url)
     return response.text.rstrip()
 
@@ -88,7 +90,7 @@ check_env("RECORDID")
 verify_auth(email, token)
 
 # IP update schedule
-current_ip=get_ip(ip_url)
+current_ip=get_ip()
 
 update_interval = None
 wait_time = update_interval if update_interval is not None else 300
