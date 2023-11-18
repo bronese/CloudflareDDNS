@@ -2,7 +2,6 @@ import time
 import os
 import requests
 
-
 # Environmental Variables
 domain = os.getenv("DOMAIN")
 name = os.getenv("NAME")
@@ -12,8 +11,7 @@ email = os.getenv("EMAIL")
 token = os.getenv("TOKEN")
 zone_id = os.getenv("ZONEID")
 record_id = os.getenv("RECORDID")
-
-current_time = time.ctime()
+update_interval = os.getenv("UPDATEINTERVAL")
 
 
 # Var checker
@@ -66,8 +64,6 @@ def main(domain, name, record_type, ip_url, email, token, zone_id, record_id):
         "comment": "IP updated at " + current_time,
     }
 
-    print(f"updated IP: {new_ip} at {current_time}")
-
     # Send the PUT request
     response = requests.put(
         f"https://api.cloudflare.com/client/v4/zones/{zone_id}/dns_records/{record_id}",
@@ -89,46 +85,17 @@ check_env("ZONEID")
 check_env("RECORDID")
 
 # Verify authentication on boot
-if verify_auth(email, token) == True:
-    print("Awaiting IP check...")
+verify_auth(email, token)
 
 # IP update schedule
-wait_time = 60 * 30  # 30 minutes
-file_path = "/home/current_ip.txt"
+current_ip=get_ip(ip_url)
+
+update_interval = None
+wait_time = update_interval if update_interval is not None else 300
+
 while True:
-    new_ip = get_ip()
-
-    if not os.path.exists(file_path):
-        with open(file_path, 'w') as f:
-            f.write(new_ip)
-            print(f"Saved IP: {new_ip} to {file_path}")
-        continue
-
-    with open(file_path, 'r') as f:
-        current_ip = f.read().strip()
-
-    if new_ip == current_ip:
-        print("No IP Changes")
-    else:
-        print(f"IP has changed from {current_ip} to {new_ip}. Updating...")
-        main(domain, name, record_type, ip_url, email, token, zone_id, record_id)
-        with open(file_path, 'w') as f:
-            f.write(new_ip)
-            print(f"Updated IP: {new_ip} in {file_path}")
-
+    new_ip = get_ip(ip_url)
+    main(domain, name, record_type, ip_url, email, token, zone_id, record_id)
+    print(f"Updated IP from {current_ip} to {new_ip}")
+    current_ip=new_ip
     time.sleep(wait_time)
-
-
-# if __name__ == "__main__":
-#     config = configparser.ConfigParser()
-#     config.read("ddns.ini")
-
-#     section = config["DEFAULT"]
-#     domain = section["Domain"]
-#     name = section["Name"]
-#     record_type = section["RecordType"]
-#     ip_url = section["IpUrl"]
-#     email = section["Email"]
-#     token = section["Token"]
-#     zone_id = section["ZoneId"]
-#     record_id = section["RecordId"]
