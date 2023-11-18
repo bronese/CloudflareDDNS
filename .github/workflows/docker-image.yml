@@ -4,6 +4,7 @@ on:
   push:
       paths-ignore:
        - 'readme.md'
+       - 'example.env'
       branches: ["main"]
 
   pull_request:
