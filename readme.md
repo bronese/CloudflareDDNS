@@ -30,7 +30,7 @@ An example .env file is also [included](https://github.com/bronese/CloudflareDDN
 To start the app in Docker, run the following command (substitute your environment variables):
 
 ```
-docker run -e DOMAIN=yourdomain -e NAME=yourname -e RECORDTYPE=A -e EMAIL=youremail -e TOKEN=yourtoken -e ZONEID=yourzoneid -e RECORDID=yourrecordid bronese/ddns-updater:lastest
+docker run -e DOMAIN=yourdomain -e NAME=yourname -e RECORDTYPE=A -e EMAIL=youremail -e TOKEN=yourtoken -e ZONEID=yourzoneid -e RECORDID=yourrecordid bronese/ddns-updater:lastest -v /home/
 ```
 
 You can also use a .env file to configure your environment variables and run the Docker command:
