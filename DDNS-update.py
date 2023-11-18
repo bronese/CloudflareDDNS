@@ -72,17 +72,17 @@ def get_generated_record_id(dns_record, selecteditem):
     while counter < len(dns_record):
         if dns_record[counter]['type'] == 'A':
             filtered_payload.append(dns_record[counter])
-            break
-
+        counter += 1
     if len(filtered_payload) > 1:
         dns_record_id = filtered_payload[selecteditem]
-        return dns_record_id['id']
+        return dns_record_id['id'], dns_record_id['name']
     else:
         dns_record_id = filtered_payload[0]
-        return dns_record_id['id']
+        return dns_record_id['id'], dns_record_id['name']
+
 
 # Main function
-def main(domain, name, record_type, ip_url, email, token, zone_id, final_record_id):
+def main(domain, final_name, record_type, ip_url, email, token, zone_id, final_record_id):
     # Get IP
     new_ip = get_ip(ip_url)
 
@@ -92,7 +92,7 @@ def main(domain, name, record_type, ip_url, email, token, zone_id, final_record_
     # Define the data
     data = {
         "content": new_ip,
-        "name": name,
+        "name": final_name,
         "proxied": False,
         "type": record_type,
         "comment": "IP updated at " + current_time,
@@ -136,14 +136,16 @@ current_ip=get_ip()
 #DNS record ID checker
 dns_record = get_dns_record(email, token, zone_id)
 if selecteditem!=None:
-     final_record_id = get_generated_record_id(dns_record, selecteditem)
+     final_record_id=get_generated_record_id(dns_record, selecteditem)[1]
+     final_name=get_generated_record_id(dns_record, selecteditem)[0]
 else:
      final_record_id=record_id
+     final_name=name
 
 # Main loop
 while current_ip != None:
     new_ip = get_ip(ip_url)
-    main(domain, name, record_type, ip_url, email, token, zone_id, final_record_id)
+    main(domain, final_name, record_type, ip_url, email, token, zone_id, final_record_id)
     print(f"Updated IP from {current_ip} to {new_ip} at {current_time}.")
     current_ip = new_ip
     wait_time = int(update_interval if update_interval is not None else 300)
