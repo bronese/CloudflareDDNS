@@ -1,9 +1,11 @@
 # Use Ubuntu as the base image
 FROM ubuntu:latest
 
-RUN add-apt-repository ppa:deadsnakes/ppa
+RUN apt-get update && \
+    apt-get install -y software-properties-common && \
+    add-apt-repository ppa:deadsnakes/ppa && \
+    apt-get update
 # Update Ubuntu Software repository
-RUN apt-get update
 
 # Install tzdata
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata
