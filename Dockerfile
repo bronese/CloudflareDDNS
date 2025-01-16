@@ -14,7 +14,6 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata
 RUN apt-get install -y python3.11 python3-pip
 
 # Upgrade pip
-RUN python3.11 -m pip install --upgrade pip
 
 # Install requests
 RUN python3.11 -m pip install requests
