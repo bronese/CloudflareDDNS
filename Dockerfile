@@ -1,6 +1,7 @@
 # Use Ubuntu as the base image
 FROM ubuntu:latest
 
+RUN add-apt-repository ppa:deadsnakes/ppa
 # Update Ubuntu Software repository
 RUN apt-get update
 
