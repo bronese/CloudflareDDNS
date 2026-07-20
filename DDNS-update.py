@@ -8,9 +8,8 @@ import sys
 domain_env = os.getenv("DOMAIN")  # e.g., example.com (your zone name)
 name_env = os.getenv("NAME")  # e.g., dyndns, www, or @ for root. If not FQDN, DOMAIN will be appended.
 record_type_env = os.getenv("RECORDTYPE") or "A"
-ip_url = os.getenv("IPURL") or "http://ifconfig.me"
-email = os.getenv("EMAIL") # Your Cloudflare account email
-token = os.getenv("TOKEN") # Your Cloudflare API Token (Global API Key or specific token)
+ip_url = os.getenv("IPURL") or "https://ifconfig.me"
+token = os.getenv("TOKEN") # Cloudflare API token with DNS read/write access
 zone_id = os.getenv("ZONEID") # The Zone ID of your domain in Cloudflare
 record_id_env = os.getenv("RECORDID") # Optional: if you know the specific record ID
 selected_item_env = os.getenv("SELECTEDITEM") # Optional: index if NAME+TYPE yields multiple records
@@ -46,37 +45,12 @@ def get_current_timestamp():
     """Returns a formatted current timestamp."""
     return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
 
-def get_headers(cf_email, cf_token):
+def get_headers(cf_token):
     """Builds the standard headers for Cloudflare API requests."""
     return {
-        "X-Auth-Email": cf_email,
         "Authorization": f"Bearer {cf_token}",
         "Content-Type": "application/json",
     }
-
-def verify_auth(cf_email, cf_token):
-    """Verifies Cloudflare API authentication."""
-    headers = get_headers(cf_email, cf_token)
-    try:
-        response = requests.get(
-            "https://api.cloudflare.com/client/v4/user", headers=headers, timeout=10
-        )
-        response.raise_for_status() # Raises HTTPError for bad responses (4xx or 5xx)
-        if response.json().get("success"):
-            return True
-        else:
-            print(f"[ERROR] Failed to authenticate with Cloudflare. API success=false. Response: {response.json()}")
-            return False
-    except requests.exceptions.HTTPError as http_err:
-        print(f"[ERROR] HTTP error during Cloudflare authentication: {http_err}")
-        if hasattr(response, 'text'): print(f"  Response content: {response.text}")
-        return False
-    except requests.exceptions.RequestException as e:
-        print(f"[ERROR] Request exception during Cloudflare authentication: {e}")
-        return False
-    except Exception as e:
-        print(f"[ERROR] An unexpected error occurred in verify_auth: {e}")
-        return False
 
 def get_public_ip(url_to_fetch_ip):
     """Fetches the public IP address from a given URL."""
@@ -98,9 +72,9 @@ def get_public_ip(url_to_fetch_ip):
         print(f"[ERROR] An unexpected error occurred in get_public_ip: {e}")
         return None
 
-def get_all_dns_records(cf_email, cf_token, cf_zone_id):
+def get_all_dns_records(cf_token, cf_zone_id):
     """Fetches all DNS records for a given Cloudflare zone."""
-    headers = get_headers(cf_email, cf_token)
+    headers = get_headers(cf_token)
     print(f"[DEBUG] Requesting DNS records for Zone ID: {cf_zone_id}")
     try:
         response = requests.get(
@@ -187,17 +161,14 @@ def find_record_details_by_name_and_type(dns_records_list, target_name, target_t
             print("[ERROR] Ambiguous record. Provide RECORDID or use SELECTEDITEM to choose from multiple matches.")
             return None, None
 
-def main_update_dns(record_name_to_update, record_type_to_update, new_ip_address, 
-                    cf_email, cf_token, cf_zone_id, cf_record_id, 
+def main_update_dns(record_name_to_update, new_ip_address,
+                    cf_token, cf_zone_id, cf_record_id,
                     record_ttl_value, update_timestamp_str):
     """Updates a specific DNS record on Cloudflare."""
     print(f"[INFO] Preparing to update DNS record ID '{cf_record_id}' for '{record_name_to_update}' to IP '{new_ip_address}'.")
-    headers = get_headers(cf_email, cf_token)
+    headers = get_headers(cf_token)
     data = {
         "content": new_ip_address,
-        "name": record_name_to_update,
-        "proxied": False, 
-        "type": record_type_to_update,
         "comment": f"DDNS script update. IP set to {new_ip_address} at {update_timestamp_str}",
         "ttl": record_ttl_value
     }
@@ -205,7 +176,7 @@ def main_update_dns(record_name_to_update, record_type_to_update, new_ip_address
     print(f"[DEBUG] DNS Update Payload: {data}")
 
     try:
-        response = requests.put(
+        response = requests.patch(
             f"https://api.cloudflare.com/client/v4/zones/{cf_zone_id}/dns_records/{cf_record_id}",
             headers=headers,
             json=data,
@@ -250,8 +221,6 @@ if __name__ == "__main__":
     print("="*70 + "\n")
 
     print("--- Initial Configuration ---")
-    email_hidden = email[:2] + "****" + email[len(email)-4:] if email and len(email) > 6 else "Not Set"
-    print(f"  Cloudflare Email:         {email_hidden}")
     print(f"  Cloudflare Zone ID:       {zone_id or 'Not Set'}")
     print(f"  Cloudflare Token:         {'Set' if token else 'Not Set'}")
     print(f"  Domain/Zone (DOMAIN):     {domain_env or 'Not Set'}")
@@ -265,7 +234,7 @@ if __name__ == "__main__":
     print("-----------------------------\n")
 
     # Critical Environment Variables Check
-    required_vars_map = {"EMAIL": email, "TOKEN": token, "ZONEID": zone_id}
+    required_vars_map = {"TOKEN": token, "ZONEID": zone_id}
     missing_critical_vars = [k for k, v in required_vars_map.items() if not v]
     if missing_critical_vars:
         print(f"[FATAL] Missing critical environment variables: {', '.join(missing_critical_vars)}. Exiting.")
@@ -304,21 +273,13 @@ if __name__ == "__main__":
          sys.exit(1)
     print("-" * 30)
 
-    # Verify Cloudflare Authentication
-    print("[INFO] Verifying Cloudflare authentication...")
-    if not verify_auth(email, token):
-        print("[FATAL] Cloudflare authentication failed. Check EMAIL and TOKEN. Exiting.")
-        sys.exit(1)
-    print("[SUCCESS] Cloudflare authentication successful.")
-    print("-" * 30 + "\n")
-
     # Determine final_record_id and final_name_for_update
     final_record_id_to_update = None
     final_name_for_update = None
     effective_record_type = record_type_env
 
     print("[INFO] Fetching all DNS records for the zone...")
-    all_zone_records = get_all_dns_records(email, token, zone_id)
+    all_zone_records = get_all_dns_records(token, zone_id)
     if all_zone_records is None:
         print(f"[FATAL] Failed to fetch DNS records for zone {zone_id}. Cannot proceed. Exiting.")
         sys.exit(1)
@@ -360,22 +321,23 @@ if __name__ == "__main__":
         print("[FATAL] Could not determine final_record_id or final_name_for_update. Exiting before loop.")
         sys.exit(1)
 
+    current_dns_ip = next(
+        (r.get("content") for r in all_zone_records if r.get("id") == final_record_id_to_update),
+        None,
+    )
+    if not current_dns_ip:
+        print("[FATAL] Target DNS record has no current content. Exiting before loop.")
+        sys.exit(1)
+
     print("\n" + "*"*20 + " Target Record Identified " + "*"*20)
     print(f"  Record ID to Update: {final_record_id_to_update}")
     print(f"  Record Name:         {final_name_for_update}")
     print(f"  Record Type:         {effective_record_type}")
+    print(f"  Current DNS IP:      {current_dns_ip}")
     print("*"* (40 + len(" Target Record Identified ")) + "\n")
     
     setup_end_time = time.time()
     print(f"[INFO] Setup and record identification completed in {setup_end_time - script_start_time:.2f} seconds.")
-
-    # Get current public IP before starting loop
-    print("[INFO] Fetching initial public IP address...")
-    current_public_ip = get_public_ip(ip_url)
-    if not current_public_ip:
-        print(f"[FATAL] Failed to get initial public IP from {ip_url}. Exiting.")
-        sys.exit(1)
-    print(f"[SUCCESS] Initial public IP: {current_public_ip}")
 
     # --- Main DDNS Update Loop ---
     loop_count = 0
@@ -387,31 +349,31 @@ if __name__ == "__main__":
         current_loop_time = get_current_timestamp()
         print(f"\n--- DDNS Check Loop #{loop_count} ({current_loop_time}) ---")
         
-        print(f"[INFO] Current known public IP: {current_public_ip}")
+        print(f"[INFO] Current Cloudflare DNS IP: {current_dns_ip}")
         print(f"[INFO] Fetching new public IP from {ip_url}...")
         new_public_ip = get_public_ip(ip_url)
         
         if not new_public_ip:
             print(f"[WARN] Failed to get new public IP in this loop cycle. Skipping update.")
-        elif new_public_ip == current_public_ip:
-            print(f"[INFO] Public IP address has not changed ({current_public_ip}). No update needed.")
+        elif new_public_ip == current_dns_ip:
+            print(f"[INFO] Cloudflare DNS already matches the public IP ({current_dns_ip}). No update needed.")
         else:
             print(f"[!!!!] IP ADDRESS CHANGE DETECTED [!!!!]")
-            print(f"  Old IP: {current_public_ip}")
+            print(f"  DNS IP: {current_dns_ip}")
             print(f"  New IP: {new_public_ip}")
             print(f"[INFO] Updating DNS record '{final_name_for_update}'...")
             
             update_timestamp = get_current_timestamp()
             update_successful = main_update_dns(
-                final_name_for_update, effective_record_type, new_public_ip,
-                email, token, zone_id, final_record_id_to_update,
+                final_name_for_update, new_public_ip,
+                token, zone_id, final_record_id_to_update,
                 ttl, update_timestamp
             )
             if update_successful:
                 print(f"[SUCCESS] DNS update for '{final_name_for_update}' to '{new_public_ip}' was successful.")
-                current_public_ip = new_public_ip 
+                current_dns_ip = new_public_ip
             else:
-                print(f"[ERROR] DNS update for '{final_name_for_update}' failed. Old IP '{current_public_ip}' will be checked next cycle.")
+                print(f"[ERROR] DNS update for '{final_name_for_update}' failed. DNS IP '{current_dns_ip}' will be checked next cycle.")
 
         print(f"[INFO] Waiting for {update_interval} seconds before next check...")
         time.sleep(update_interval)
